@@ -30,7 +30,7 @@ public class PetController {
 		return petService.addPet(userData);
 	}
 
-	// JSON parameters: name && ( newName || kind || birthday || sex || newowner)
+	// JSON parameters: name && ( newтame || kind || birthday || sex || newowner)
 	@PostMapping(value = "/pet/edit", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity editPet(@RequestBody Map<String, String> userData) {
 		return petService.editPet(userData);
