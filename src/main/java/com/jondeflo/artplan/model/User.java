@@ -4,7 +4,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
-import javax.persistence.criteria.CriteriaBuilder;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -13,12 +12,12 @@ import java.util.List;
 @Table(name = "users", schema = "public")
 public class User implements UserDetails {
 
-    public User() {}
+    public User() { }
 
     public User(String name, String passsword) {
         this.name = name;
         this.password = passsword;
-        this.role = "USER";
+        this.role = "ROLE_USER";
         this.failedAttempts = 0;
         this.firstFailTime = null;
     }
@@ -48,10 +47,6 @@ public class User implements UserDetails {
     @Transient
     private String role;
 
-    public List<Pet> getPets() {
-        return pets;
-    }
-
     public String getUsername()
     {
         return this.name;
@@ -60,10 +55,6 @@ public class User implements UserDetails {
     public String getPassword()
     {
         return this.password;
-    }
-
-    public String getRole() {
-        return this.role;
     }
 
     public Integer getFailedAttempts() { return this.failedAttempts; }
@@ -86,16 +77,6 @@ public class User implements UserDetails {
         return true;
     }
 
-    public void setPassword(String password)
-    {
-        this.password = password;
-    }
-
-    public void setRole()
-    {
-        this.role = "USER";
-    }
-
     public void setFailedAttempts(Integer amount)
     {
         this.failedAttempts = amount;
@@ -106,7 +87,6 @@ public class User implements UserDetails {
         this.firstFailTime = date;
     }
 
-
     public Long getId()
     {
         return this.id;
@@ -116,7 +96,5 @@ public class User implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return authorities;
     }
-
-
 
 }

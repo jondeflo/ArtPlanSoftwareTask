@@ -13,10 +13,6 @@ public class Kind {
     @JoinColumn(name = "kind", nullable = false)
     private String kind;
 
-    public Long getId() {
-        return id;
-    }
-
     public String getKind() {
         return kind;
     }

@@ -7,8 +7,7 @@ import java.util.Date;
 @Table(name = "pets", schema = "public")
 public class Pet {
 
-    public Pet(String name, Kind kind, Date birthdate, boolean sex, User owner)
-    {
+    public Pet(String name, Kind kind, Date birthdate, boolean sex, User owner) {
         this.name = name;
         this.kind = kind;
         this.birthdate = birthdate;
@@ -16,7 +15,7 @@ public class Pet {
         this.owner = owner;
     }
 
-    public Pet() {}
+    public Pet() { }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -61,7 +60,6 @@ public class Pet {
 
     public User getOwner() { return owner; }
 
-
     public void setName(String name) {
         this.name = name;
     }
@@ -79,7 +77,5 @@ public class Pet {
     }
 
     public void setOwner(User user) {this.owner = user; }
-
-
 
 }

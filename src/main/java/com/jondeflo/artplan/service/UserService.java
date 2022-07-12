@@ -1,6 +1,5 @@
 package com.jondeflo.artplan.service;
 
-import com.jondeflo.artplan.config.CustomAuthenticationProvider;
 import com.jondeflo.artplan.model.User;
 import com.jondeflo.artplan.repository.UserRepository;
 import com.jondeflo.artplan.validation.UserValidator;
@@ -21,7 +20,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import java.util.Date;
 import java.util.Map;
 
-
 @Component
 public class UserService implements UserDetailsService {
 
@@ -39,10 +37,12 @@ public class UserService implements UserDetailsService {
 
 	public ResponseEntity<Object> registerUser(Map<String, String> userData) {
 
-		if (!userValidator.validateUser(userData))
-			return responseHandler.getResponse("Incorrect user data", HttpStatus.BAD_REQUEST);
+		if (isUserAuthenticated())
+			return responseHandler.getErrorResponse(2006, "You must log out before attempting to register", HttpStatus.BAD_REQUEST);
+		if (!userValidator.validateUserData(userData))
+			return responseHandler.getErrorResponse(2001, "Wrong request parameters", HttpStatus.BAD_REQUEST);
 		if (userRepository.findFirstByName(userData.get("name")) != null)
-			return responseHandler.getResponse("User with name " + userData.get("name") + " is already registered", HttpStatus.BAD_REQUEST);
+			return responseHandler.getErrorResponse(2002,"User " + userData.get("name") + " is already exists", HttpStatus.BAD_REQUEST);
 
 		String hashedPassword = passwordEncoder.encode(userData.get("password"));
 		User user = new User(userData.get("name"), hashedPassword);
@@ -53,20 +53,28 @@ public class UserService implements UserDetailsService {
 		return responseHandler.getResponse("User registered", HttpStatus.OK);
 	}
 
+	public ResponseEntity<Object> checkUserName(Object name) {
+		if (!userValidator.validateCheckRequest(name))
+			return responseHandler.getErrorResponse(2001, "Wrong request parameters", HttpStatus.BAD_REQUEST);
+		if (userRepository.findFirstByName(String.valueOf(name)) != null)
+			return responseHandler.getResponse("User  " + name + " already exists", HttpStatus.OK);
+		return responseHandler.getResponse("User " + name + " is not exists", HttpStatus.OK);
+	}
+
 	public ResponseEntity<Object> login(Map<String, String> userData) {
 
-		if (!userValidator.validateUser(userData))
-			return responseHandler.getResponse("Wrong login request", HttpStatus.BAD_REQUEST);
+		if (!userValidator.validateUserData(userData))
+			return responseHandler.getErrorResponse(2001, "Wrong request parameters", HttpStatus.BAD_REQUEST);
 		if (isUserAuthenticated())
-			return responseHandler.getResponse("You must to log out before attempt to log in", HttpStatus.OK);
+			return responseHandler.getErrorResponse(2003, "You must log out before attempting to log in", HttpStatus.BAD_REQUEST);
 		if (userRepository.findFirstByName(userData.get("name")) == null)
-			return responseHandler.getResponse("User with name " + userData.get("name") + " not found", HttpStatus.OK);
+			return responseHandler.getErrorResponse(2004, "User " + userData.get("name") + " is not exists", HttpStatus.OK);
 
 		User user = userRepository.findFirstByName(userData.get("name"));
 		Long diff = checkLoginConstraints(user);
 
 		if (user.getFailedAttempts() == 10 && diff < 1)
-			return responseHandler.getResponse("You've entered wrong password many times. Please wait 1 hour.", HttpStatus.UNAUTHORIZED);
+			return responseHandler.getErrorResponse(2005, "You have entered the wrong password many times. Please wait 1 hour", HttpStatus.UNAUTHORIZED);
 		if (passwordEncoder.matches(userData.get("password"), user.getPassword())) {
 			performLogin(user);
 			return responseHandler.getResponse("User successfully logged in", HttpStatus.OK);
@@ -112,22 +120,22 @@ public class UserService implements UserDetailsService {
 			return true;
 	}
 
-	public ResponseEntity<Object> checkUserName(Object name) {
-		if (!userValidator.validateCheckRequest(name))
-			return responseHandler.getResponse("Incorrect request parameters", HttpStatus.BAD_REQUEST);
-		if (userRepository.findFirstByName(String.valueOf(name)) != null)
-			return responseHandler.getResponse("User with name " + name + " is already registered", HttpStatus.OK);
-		return responseHandler.getResponse("User with name " + name + " is not registered yet", HttpStatus.OK);
-	}
-
-	private void forcedLogin(User user){
+	private void forcedLogin(User user) {
 		UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword(), user.getAuthorities());
 		SecurityContext securityContext = SecurityContextHolder.getContext();
 		securityContext.setAuthentication(auth);
+	}
+
+	protected User getCurrentUser() {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		String currentPrincipalName = authentication.getName();
+		User user = userRepository.findFirstByName(currentPrincipalName);
+		return user;
 	}
 
 	@Override
 	public UserDetails loadUserByUsername(String userName) throws UsernameNotFoundException {
 		return null;
 	}
+
 }

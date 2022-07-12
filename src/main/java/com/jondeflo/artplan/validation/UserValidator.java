@@ -2,14 +2,12 @@ package com.jondeflo.artplan.validation;
 
 import org.springframework.stereotype.Component;
 
-import javax.swing.*;
 import java.util.Map;
 
 @Component
 public class UserValidator {
 
-    public boolean validateUser(Map<String, String> userData)
-    {
+    public boolean validateUserData(Map<String, String> userData) {
         if (userData.size() != 2)
             return false;
         if (!userData.containsKey("name") || !userData.containsKey("password"))
@@ -21,8 +19,7 @@ public class UserValidator {
         return true;
     }
 
-    public boolean validateCheckRequest(Object name)
-    {
+    public boolean validateCheckRequest(Object name) {
        if (!String.valueOf(name).isBlank())
            return true;
        return false;

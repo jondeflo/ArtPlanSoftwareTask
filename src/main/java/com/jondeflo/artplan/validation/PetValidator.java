@@ -9,7 +9,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
-import java.util.Set;
 
 @Component
 public class PetValidator {
@@ -17,7 +16,7 @@ public class PetValidator {
     @Autowired
     KindRepository kindRepository;
 
-    public boolean validatePetEdition(Map<String, String> petData) {
+    public boolean validateEditionData(Map<String, String> petData) {
 
         if (petData.size() < 2)
             return false;
@@ -38,13 +37,11 @@ public class PetValidator {
         if (petData.containsKey("birthdate") && validateDate(petData.get("birthdate")) == null)
             return false;
 
-
         return true;
     }
 
 
-    public boolean validateNewPet(Map<String, String> petData)
-    {
+    public boolean validateNewPet(Map<String, String> petData) {
         if (petData.size() != 4)
             return false;
         if (!petData.containsKey("name") || !petData.containsKey("kind")
@@ -60,25 +57,23 @@ public class PetValidator {
             return false;
         if (validateDate(petData.get("birthdate")) == null)
             return false;
+
         return true;
     }
 
-    public Date validateDate(String date)
-    {
+    public Date validateDate(String date) {
+
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
         Date result;
         try {
             result = df.parse(date);
         } catch (ParseException e) {
-            System.out.println("Data validation error");
             return null;
         }
-        System.out.println(result);
         return result;
     }
 
-    public boolean validateDelete(Map<String, String> petData)
-    {
+    public boolean validateDeletionData(Map<String, String> petData) {
         if (petData.size() != 1)
             return false;
         if (!petData.containsKey("name"))
@@ -88,17 +83,14 @@ public class PetValidator {
         return true;
     }
 
-    public Long validateId(Object petId)
-    {
+    public Long validateId(Object petId) {
         Long res;
 
         try {
             res = Long.parseLong((String) petId);
-        } catch (NumberFormatException e){ return null;}
+        } catch (NumberFormatException e){ return null; }
 
         return res;
     }
-
-
 
 }

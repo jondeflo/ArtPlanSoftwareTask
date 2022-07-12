@@ -13,22 +13,30 @@ import java.util.Map;
 @Component
 public class ResponseHandler {
 
-    protected ResponseEntity<Object> getResponse(String message, HttpStatus status)
-    {
+    protected ResponseEntity<Object> getResponse(String message, HttpStatus status) {
+
         Map<String, String> response = new LinkedHashMap<>();
         response.put("status", status.getReasonPhrase());
         response.put("message", message);
         return new ResponseEntity<>(response, new HttpHeaders(), status);
     }
 
-    protected ResponseEntity<Object> getPetInfo(Pet pet, HttpStatus status)
-    {
+    protected ResponseEntity<Object> getErrorResponse(int errorNumber, String message, HttpStatus status) {
+
+        Map<String, String> response = new LinkedHashMap<>();
+        response.put("Error", String.valueOf(errorNumber));
+        response.put("Message", message);
+        return new ResponseEntity<>(response, new HttpHeaders(), status);
+    }
+
+    protected ResponseEntity<Object> getPetInfo(Pet pet, HttpStatus status) {
+
         Map<String, String> response = preparePetInfo(pet);
         return new ResponseEntity<>(response, new HttpHeaders(), status);
     }
 
-    protected Map<String, String> preparePetInfo (Pet pet)
-    {
+    protected Map<String, String> preparePetInfo (Pet pet) {
+
         Map<String, String> response = new LinkedHashMap<>();
         response.put("id", String.valueOf(pet.getId()));
         response.put("name", pet.getName());
@@ -38,8 +46,7 @@ public class ResponseHandler {
         return response;
     }
 
-    protected ResponseEntity<Object> getPetList(List<Pet> list, HttpStatus status)
-    {
+    protected ResponseEntity<Object> getPetList(List<Pet> list, HttpStatus status) {
         List<Map<String, String>> response = new LinkedList<>();
 
         for(Pet p : list) {
@@ -48,4 +55,5 @@ public class ResponseHandler {
         }
         return new ResponseEntity<>(response, new HttpHeaders(), status);
     }
+
 }
